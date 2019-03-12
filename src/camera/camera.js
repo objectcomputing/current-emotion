@@ -4,8 +4,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {getDataUrlFromVideo} from '../image-util';
 import './camera.scss';
 
-const authToken =
-  'ya29.c.El_KBujnZiaJWNt0HhySqFdTxwOZLRLlxyok9wL5c7FIuCt-lqX1Dut__GQGlcKqeEW6Y-KgQMp4-3Sc5yWSSl8YzzAIhV1s0PxnPW3bLzPY-WzhqsYa0JbbFUVs06Yfxg';
+import {authToken} from '../secret.json';
 
 const emotions = ['anger', 'headwear', 'joy', 'sorrow', 'surprise'];
 
@@ -101,6 +100,8 @@ async function takePhoto() {
     new faceApi.TinyFaceDetectorOptions()
   );
   context.strokeStyle = 'red';
+  context.lineWidth = 3;
+  console.log('faces found:', faces.length);
   for (const face of faces) {
     const {left, top, width, height} = face.box;
     context.strokeRect(left, top, width, height);
@@ -120,7 +121,7 @@ function Camera() {
   const assess = mood => likelyMap[annotations[mood + 'Likelihood']];
 
   function has(mood) {
-    const chance = annotations[mood + 'Likelihood'];
+    const chance = annotations && annotations[mood + 'Likelihood'];
     return chance === 'VERY_LIKELY' || chance === 'LIKELY';
   }
 
@@ -158,6 +159,14 @@ function Camera() {
     const {key} = event;
     if (key === ' ' || key === 'Enter') snapPhoto();
   }, []);
+
+  // These emojis are from http://openmoji.org/.
+  const foundEmotions = emotions.filter(has);
+  const emojis = foundEmotions.map(emotion => (
+    <img alt={emotion} key={emotion} src={`images/${emotion}.svg`} />
+  ));
+  if (emojis.length === 0)
+    emojis.push(<img alt="none" src="images/none.svg" />);
 
   return (
     <div className="camera">
@@ -207,15 +216,7 @@ function Camera() {
 
       {annotations && (
         <div className="annotations">
-          <div className="emojis">
-            {/* These emojis are from http://openmoji.org/. */}
-            {emotions.map(
-              emotion =>
-                has(emotion) && (
-                  <img alt={emotion} src={`images/${emotion}.svg`} />
-                )
-            )}
-          </div>
+          <div className="emojis">{emojis}</div>
           <div>Anger: {assess('anger')}</div>
           <div>Headwear: {assess('headwear')}</div>
           <div>Joy: {assess('joy')}</div>
