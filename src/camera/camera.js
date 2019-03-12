@@ -9,9 +9,11 @@ import {authToken} from '../secret.json';
 
 const emotions = ['anger', 'headwear', 'joy', 'sorrow', 'surprise'];
 
-//const faceParams = {minFaceSize: 30};
+const FACE_PARAMS = {minFaceSize: 30};
 
-const likelyMap = {
+const VIDEO_DETECT = true;
+
+const LIKELY_MAP = {
   UNKNOWN: 'not sure',
   VERY_UNLIKELY: 'no',
   UNLIKELY: 'probably not',
@@ -23,12 +25,14 @@ const likelyMap = {
 async function onPlay(video) {
   if (video.target) video = video.target;
 
-  // const options = new faceApi.MtcnnOptions(faceParams);
-  // const faces = await faceApi
-  //   .detectAllFaces(video, options)
-  //   .withFaceLandmarks()
-  //   .withFaceDescriptors();
-  // outlineFaces(faces);
+  if (VIDEO_DETECT) {
+    const options = new faceApi.MtcnnOptions(FACE_PARAMS);
+    const faces = await faceApi
+      .detectAllFaces(video, options)
+      .withFaceLandmarks()
+      .withFaceDescriptors();
+    outlineFaces(faces);
+  }
 
   //TODO: Use setInterval from outside this function instead.
   setTimeout(() => onPlay(video), 1000);
@@ -91,14 +95,24 @@ function startCamera() {
       const video = document.querySelector('.camera-video');
       video.srcObject = stream;
 
-      // const results = await faceApi.mtcnn(video, faceParams);
-      // faceApi.drawDetection('overlay', results.map(res => res.faceDetection), {
-      //   withScore: false
-      // });
-      // faceApi.drawLandmarks('overlay', results.map(res => res.faceLandmarks), {
-      //   lineWidth: 4,
-      //   color: 'red'
-      // });
+      if (VIDEO_DETECT) {
+        const results = await faceApi.mtcnn(video, FACE_PARAMS);
+        faceApi.drawDetection(
+          'overlay',
+          results.map(res => res.faceDetection),
+          {
+            withScore: false
+          }
+        );
+        faceApi.drawLandmarks(
+          'overlay',
+          results.map(res => res.faceLandmarks),
+          {
+            lineWidth: 4,
+            color: 'red'
+          }
+        );
+      }
     };
     const errorCb = err => {
       // The most common errors are PermissionDenied and DevicesNotFound.
@@ -132,11 +146,10 @@ async function takePhoto() {
   image.src = photoData;
   context.drawImage(image, 0, 0);
 
-  const faces = await faceApi.detectAllFaces(
-    image,
-    new faceApi.TinyFaceDetectorOptions()
-    //new faceApi.MtcnnOptions(faceParams)
-  );
+  const options = VIDEO_DETECT
+    ? new faceApi.MtcnnOptions(FACE_PARAMS)
+    : new faceApi.TinyFaceDetectorOptions();
+  const faces = await faceApi.detectAllFaces(image, options);
   outlineFaces(faces);
 
   stopCamera();
@@ -149,7 +162,7 @@ function Camera() {
   const [photoData, setPhotoData] = useState('');
   const [showVideo, setShowVideo] = useState(false);
 
-  const assess = mood => likelyMap[annotations[mood + 'Likelihood']];
+  const assess = mood => LIKELY_MAP[annotations[mood + 'Likelihood']];
 
   function has(mood) {
     const chance = annotations && annotations[mood + 'Likelihood'];
@@ -163,8 +176,11 @@ function Camera() {
   }
 
   async function loadModel() {
-    await faceApi.loadTinyFaceDetectorModel('/weights');
-    //await faceApi.loadMtcnnModel('/weights');
+    if (VIDEO_DETECT) {
+      await faceApi.loadMtcnnModel('/weights');
+    } else {
+      await faceApi.loadTinyFaceDetectorModel('/weights');
+    }
 
     // Don't start camera until the model has been loaded.
     cameraOn();
@@ -197,7 +213,6 @@ function Camera() {
     if (key === ' ' || key === 'Enter') snapPhoto();
   }, []);
 
-  // These emojis are from http://openmoji.org/.
   const foundEmotions = emotions.filter(has);
   const emojis = foundEmotions.map(emotion => (
     <img alt={emotion} key={emotion} src={`images/${emotion}.svg`} />
