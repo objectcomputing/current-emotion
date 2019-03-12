@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "ocideepgauge",
+  "private_key_id": "eaa8c9248a8d6407c31329ab241d5df598ed80d3",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDBq39rQ2Hha09I\nxR08yCrx4cZWwE8/tSYfRX95h1hN/0F7XyEfFgpiVwAZebReYj6x0SHfe9Ez6/TF\nMjVvrsXXvNKDHrEgeSf5m3gJ8FIUoBGsF3sTfe+m5S2hQxfZgw2vWOMXduLjtU9p\nrRBHdwhk124jZk0AOHbP2w1RKtiRmUHNP8n3ndrX+CW9WkW/FU6ywLg0WoF/asrx\ndxvbpNPIuYGT0EEPrhTDDhkWGl5b/ULgYoYA+Ps0bF/5skBi6APtoIGIktqaAxIZ\n4qDPjjS2PEjuSgO2oB88ePYprp65jnHYTSeTxMQ5t8A6b1R9EPGShQHkzbVZw+kV\n+k5hps71AgMBAAECggEAV1BExWyfE9xn5cRsXotWBTAHVfQkpnG6iq2v/2/cCWoT\nsRXd3mB29QgJNPMQNN8xKcTB8zokwrZV55Ov0LaoXo+0DsZHD/9fXOLRNxXgQ4k4\n/m+lns+PvJwlOsd/WKKDiHLYCyuftg53i4qpRLbvE1umvZHxFDDgq+wzsEzTT6xS\nWhZTzNVXhkvh+HCImmxT2cohHmX+9eDvpb5sD+pMzuCjFoYblauyUuiTMA/z7sN/\nvPpVyrXMGFiJ6k2InwlPEnphQEu/Us/Gj4DzrRzXjjgiL+b+6+ePL4I4ge8mC5ap\nWnlrExvtG3GVyPjHnM9zN/U37u4HvOruUDRCsrT2nwKBgQDhpm5PSHVZE6QX3uJ7\nhWMEqcaLGQkAQqQ4wb7j/a4+y+MOGcALDDX/N4gETr8s4B5cF8AlGn2AdgTAkF0/\nXiGeQf7prQ55n0rPwsxvzRRYreOa7DlB2dQriPssMEGG39PofL7aiClerozMq0Q9\n7CabpBQ+0/cTfV+U/DEljkBFQwKBgQDbt+0zoHd3SmIhoSeoX9Hrk2Ti+YJeUSaT\nYE3aPwss0/+7g8qpYXhV4YSU1yH5aBYbKxhI0CqpFWXJtkRofLqGruyQP6r5E5Op\nhn0v1ckMwXzwz0CFU2lHFxahrfr2deWOK2N8YNMnaJ3/miZW4WXI1GD3xzSBF8r+\nhslWg1G7ZwKBgCD/pcISZpbQOH8FKTnHF+PmsBJHZvmSxVFHhBLzVjf4uQum2F7F\nOmBITqvSmEKHw+jT0FWcuh2/JJLEid5qdaAfJpglpqhCkz4uzpbK9t7BDzfos7bd\nlBmJvrGHnQ2MTgEBvSdYIjSmchC8Ow6TKlI4fH1zof5Hp2KyPr2vP9bhAoGALD9Y\nB4OTS3SxWnBn2iKh1b0zHfp9ZJ0XFarZQtBbYcW3xH1//KhiYXkvCAJjFyT8/q+p\nDlDNpotmmj6YfCpSLflgLpSDy/FDVWp+H3oAKQ92J9C0/6SSmPxvVFQDLEsF1aGr\nQUsGevM4jlbuzaRKqS0L8hot2ql9+dAPD9sWRJUCgYEAlDYwC8fiEOvr3HivstpM\nwVZ+NRlDXhORElf/Ch8nW7lIYJO6JRrFG2NlV4AS0RxVGoOaQvvlTKdqWXGT5QvZ\ne+G3cBu8hfsxN36DI3hmV+dyawr+4NX59B6bIzUoxPhJbwzJCsYr3WVdn/jvohtb\nFe9kkteMc6r1Rez8BFYea/k=\n-----END PRIVATE KEY-----\n",
+  "client_email": "svc-project-owner@ocideepgauge.iam.gserviceaccount.com",
+  "client_id": "112881315879393384598",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/svc-project-owner%40ocideepgauge.iam.gserviceaccount.com"
+}

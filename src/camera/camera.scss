@@ -1,0 +1,125 @@
+.camera {
+  $padding: 20px;
+
+  display: inline-block;
+  position: relative;
+  width: 100%;
+
+  .annotations {
+    color: white;
+    margin-top: 20px;
+  }
+
+  .bl {
+    left: -6px;
+    bottom: -6px;
+    transform: rotate(-45deg);
+  }
+
+  .br {
+    right: -6px;
+    bottom: -6px;
+    transform: rotate(-135deg);
+  }
+
+  /*
+  button {
+    border: none;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 24px;
+    padding: 20px;
+  }
+  */
+
+  .camera-canvas {
+    width: calc(100% - #{$padding} * 2);
+    padding: 20px;
+  }
+
+  .camera-img {
+    width: calc(100% - #{$padding} * 2);
+    padding: 20px;
+  }
+
+  .camera-video {
+    width: 100%;
+  }
+
+  canvas {
+    display: none;
+  }
+
+  .corner {
+    background-image: url('/images/chevron-left.svg');
+    background-repeat: no-repeat;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+  }
+
+  .emojis > img {
+    height: 100px;
+  }
+
+  #redo {
+    width: 36px;
+    position: absolute;
+    left: calc(50% - 18px);
+    top: calc(50% - 18px);
+    animation: spin 4s infinite ease-in-out;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    25%,
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .shutter {
+    position: absolute;
+    bottom: -15px;
+  }
+
+  .start-camera-btn {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    background-color: #72c7d5;
+    border-radius: 32px;
+    left: calc(50% - 32px);
+    bottom: -10px;
+  }
+
+  .tl {
+    left: -6px;
+    top: -6px;
+    transform: rotate(45deg);
+  }
+
+  .top {
+    position: relative; // makes this the containing block of its children
+  }
+
+  .tr {
+    right: -6px;
+    top: -6px;
+    transform: rotate(135deg);
+  }
+
+  video {
+    width: calc(100% - #{$padding} * 2);
+  }
+
+  .video-panel {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    padding: $padding;
+    width: calc(100% - #{$padding} * 2);
+  }
+}
