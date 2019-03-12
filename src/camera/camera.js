@@ -87,22 +87,24 @@ export function stopCamera() {
 async function takePhoto() {
   const video = document.querySelector('.camera-video');
   const canvas = document.querySelector('.camera-canvas');
+  const context = canvas.getContext('2d');
   const photoData = getDataUrlFromVideo(video, canvas) || 'test-photo-url';
 
   // Display the image.
-  //const img = document.querySelector('.camera-img');
-  //img.setAttribute('src', photoData);
   const image = new Image();
   image.src = photoData;
+  context.drawImage(image, 0, 0);
 
-  console.log('camera takePhoto: calling detectAllFaces');
-  const detections = await faceApi.detectAllFaces(
+  // Draw rectangles around all the faces.
+  const faces = await faceApi.detectAllFaces(
     image,
     new faceApi.TinyFaceDetectorOptions()
   );
-  console.log('camera takePhoto: detections =', detections);
-
-  canvas.getContext('2d').drawImage(image, 0, 0);
+  context.strokeStyle = 'red';
+  for (const face of faces) {
+    const {left, top, width, height} = face.box;
+    context.strokeRect(left, top, width, height);
+  }
 
   stopCamera();
 
@@ -142,7 +144,6 @@ function Camera() {
   const snapPhoto = async () => {
     if (!modelLoaded) {
       await faceApi.loadTinyFaceDetectorModel('/models');
-      console.log('camera.js snapPhoto: loaded model');
       setModelLoaded(true);
     }
     const photoData = await takePhoto();
