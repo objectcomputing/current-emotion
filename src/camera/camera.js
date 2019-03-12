@@ -1,4 +1,5 @@
 import * as faceApi from 'face-api.js';
+import {capitalize} from 'lodash/string';
 import {string} from 'prop-types';
 import React, {useCallback, useEffect, useState} from 'react';
 import {getDataUrlFromVideo} from '../image-util';
@@ -56,11 +57,21 @@ function startCamera() {
 
   // This is not defined in tests run in jsdom.
   if (receiver.getUserMedia) {
-    const successCb = stream => {
+    const successCb = async stream => {
       if (window.Cypress) return;
       // Turn on camera and begin recording.
       const video = document.querySelector('.camera-video');
       video.srcObject = stream;
+
+      const params = {minFaceSize: 200};
+      const results = await faceApi.mtcnn(video, params);
+      faceApi.drawDetection('overlay', results.map(res => res.faceDetection), {
+        withScore: false
+      });
+      faceApi.drawLandmarks('overlay', results.map(res => res.faceLandmarks), {
+        lineWidth: 4,
+        color: 'red'
+      });
     };
     const errorCb = err => {
       // The most common errors are PermissionDenied and DevicesNotFound.
@@ -166,7 +177,7 @@ function Camera() {
     <img alt={emotion} key={emotion} src={`images/${emotion}.svg`} />
   ));
   if (emojis.length === 0)
-    emojis.push(<img alt="none" src="images/none.svg" />);
+    emojis.push(<img alt="none" key="none" src="images/none.svg" />);
 
   return (
     <div className="camera">
@@ -217,11 +228,9 @@ function Camera() {
       {annotations && (
         <div className="annotations">
           <div className="emojis">{emojis}</div>
-          <div>Anger: {assess('anger')}</div>
-          <div>Headwear: {assess('headwear')}</div>
-          <div>Joy: {assess('joy')}</div>
-          <div>Sorrow: {assess('sorrow')}</div>
-          <div>Surprise: {assess('surprise')}</div>
+          {emotions.map(e => (
+            <div key={e}>{`${capitalize(e)}: ${assess(e)}`}</div>
+          ))}
         </div>
       )}
     </div>
