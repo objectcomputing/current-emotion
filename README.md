@@ -7,6 +7,13 @@ This is a web app that uses:
 - face-api.js to recognize faces in images
 - emojis from http://openmoji.org/
 
+To generate a new auth token:
+
+- `gcloud auth activate-service-account --key-file secret.json`
+- `gcloud auth print-access-token`
+- copy the token this outputs into `src/secret.json`
+  which is not saved in the Git repo
+
 To run it:
 
 - `npm install`
