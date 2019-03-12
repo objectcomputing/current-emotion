@@ -9,6 +9,8 @@ import {authToken} from '../secret.json';
 
 const emotions = ['anger', 'headwear', 'joy', 'sorrow', 'surprise'];
 
+//const faceParams = {minFaceSize: 30};
+
 const likelyMap = {
   UNKNOWN: 'not sure',
   VERY_UNLIKELY: 'no',
@@ -17,6 +19,32 @@ const likelyMap = {
   LIKELY: 'probably',
   VERY_LIKELY: 'yes'
 };
+
+async function onPlay(video) {
+  if (video.target) video = video.target;
+
+  // const options = new faceApi.MtcnnOptions(faceParams);
+  // const faces = await faceApi
+  //   .detectAllFaces(video, options)
+  //   .withFaceLandmarks()
+  //   .withFaceDescriptors();
+  // outlineFaces(faces);
+
+  //TODO: Use setInterval from outside this function instead.
+  setTimeout(() => onPlay(video), 1000);
+}
+
+function outlineFaces(faces) {
+  const canvas = document.querySelector('.camera-canvas');
+  const context = canvas.getContext('2d');
+  context.strokeStyle = 'red';
+  context.lineWidth = 3;
+  //console.log('faces found:', faces.length);
+  for (const face of faces) {
+    const {left, top, width, height} = face.box;
+    context.strokeRect(left, top, width, height);
+  }
+}
 
 async function sendPhoto(photoData) {
   const url = 'https://vision.googleapis.com/v1/images:annotate';
@@ -63,15 +91,14 @@ function startCamera() {
       const video = document.querySelector('.camera-video');
       video.srcObject = stream;
 
-      const params = {minFaceSize: 200};
-      const results = await faceApi.mtcnn(video, params);
-      faceApi.drawDetection('overlay', results.map(res => res.faceDetection), {
-        withScore: false
-      });
-      faceApi.drawLandmarks('overlay', results.map(res => res.faceLandmarks), {
-        lineWidth: 4,
-        color: 'red'
-      });
+      // const results = await faceApi.mtcnn(video, faceParams);
+      // faceApi.drawDetection('overlay', results.map(res => res.faceDetection), {
+      //   withScore: false
+      // });
+      // faceApi.drawLandmarks('overlay', results.map(res => res.faceLandmarks), {
+      //   lineWidth: 4,
+      //   color: 'red'
+      // });
     };
     const errorCb = err => {
       // The most common errors are PermissionDenied and DevicesNotFound.
@@ -105,18 +132,12 @@ async function takePhoto() {
   image.src = photoData;
   context.drawImage(image, 0, 0);
 
-  // Draw rectangles around all the faces.
   const faces = await faceApi.detectAllFaces(
     image,
     new faceApi.TinyFaceDetectorOptions()
+    //new faceApi.MtcnnOptions(faceParams)
   );
-  context.strokeStyle = 'red';
-  context.lineWidth = 3;
-  console.log('faces found:', faces.length);
-  for (const face of faces) {
-    const {left, top, width, height} = face.box;
-    context.strokeRect(left, top, width, height);
-  }
+  outlineFaces(faces);
 
   stopCamera();
 
@@ -125,7 +146,6 @@ async function takePhoto() {
 
 function Camera() {
   const [annotations, setAnnotations] = useState();
-  const [modelLoaded, setModelLoaded] = useState(false);
   const [photoData, setPhotoData] = useState('');
   const [showVideo, setShowVideo] = useState(false);
 
@@ -136,11 +156,19 @@ function Camera() {
     return chance === 'VERY_LIKELY' || chance === 'LIKELY';
   }
 
-  const cameraOn = () => {
+  function cameraOn() {
     setPhotoData('');
     startCamera();
     setShowVideo(true);
-  };
+  }
+
+  async function loadModel() {
+    await faceApi.loadTinyFaceDetectorModel('/weights');
+    //await faceApi.loadMtcnnModel('/weights');
+
+    // Don't start camera until the model has been loaded.
+    cameraOn();
+  }
 
   const sendToGoogle = async photoData => {
     try {
@@ -154,17 +182,15 @@ function Camera() {
   };
 
   const snapPhoto = async () => {
-    if (!modelLoaded) {
-      await faceApi.loadTinyFaceDetectorModel('/models');
-      setModelLoaded(true);
-    }
     const photoData = await takePhoto();
     setPhotoData(photoData);
     setShowVideo(false);
     sendToGoogle(photoData);
   };
 
-  useEffect(cameraOn, []);
+  useEffect(() => {
+    loadModel();
+  }, []);
 
   const keyPressed = useCallback(event => {
     const {key} = event;
@@ -189,7 +215,13 @@ function Camera() {
 
         {showVideo && (
           <div className="video-panel">
-            <video className="camera-video" autoPlay muted playsInline>
+            <video
+              className="camera-video"
+              autoPlay
+              muted
+              playsInline
+              onPlay={onPlay}
+            >
               <track kind="captions" />
             </video>
             <svg
@@ -211,12 +243,6 @@ function Camera() {
           className="camera-canvas"
           style={{display: photoData ? 'block' : 'none'}}
         />
-        {/* <img
-          alt="camera output"
-          className="camera-img"
-          src={photoData}
-          style={imgStyle}
-        /> */}
 
         {!showVideo && (
           <div className="start-camera-btn" onClick={cameraOn}>
