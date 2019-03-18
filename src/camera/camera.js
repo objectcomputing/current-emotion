@@ -45,8 +45,8 @@ async function onPlay(theVideo) {
 
 async function detectFaces() {
   const faces = await faceApi.detectAllFaces(video, faceApiOptions);
-  //.withFaceLandmarks()
-  //.withFaceDescriptors();
+  //.withFaceLandmarks() // too much data!
+  //.withFaceDescriptors(); // too much data!
   outlineFaces(faces);
 }
 
@@ -200,9 +200,13 @@ function Camera() {
 
   async function loadModel() {
     if (VIDEO_DETECT) {
-      await faceApi.loadMtcnnModel('/weights');
+      await faceApi.loadMtcnnModel('/models');
+      // This model is needed to use .withFaceLandmarks().
+      //await faceApi.loadFaceLandmarkModel('/models');
+      // This model is needed to use .withFaceDescriptors().
+      //await faceApi.loadFaceRecognitionModel('/models');
     } else {
-      await faceApi.loadTinyFaceDetectorModel('/weights');
+      await faceApi.loadTinyFaceDetectorModel('/models');
     }
 
     // Don't start camera until the model has been loaded.

@@ -80,6 +80,7 @@
   .shutter {
     position: absolute;
     bottom: -15px;
+    z-index: 2;
   }
 
   .start-camera-btn {
