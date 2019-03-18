@@ -23,30 +23,39 @@ const LIKELY_MAP = {
 };
 
 async function onPlay(video) {
+  console.log('camera.js onPlay: entered');
   if (video.target) video = video.target;
 
   if (VIDEO_DETECT) {
     const options = new faceApi.MtcnnOptions(FACE_PARAMS);
-    const faces = await faceApi
-      .detectAllFaces(video, options)
-      .withFaceLandmarks()
-      .withFaceDescriptors();
-    outlineFaces(faces);
+    const faces = await faceApi.detectAllFaces(video, options);
+    //.withFaceLandmarks()
+    //.withFaceDescriptors();
+    outlineFaces(video, faces);
   }
 
   //TODO: Use setInterval from outside this function instead.
   setTimeout(() => onPlay(video), 1000);
 }
 
-function outlineFaces(faces) {
-  const canvas = document.querySelector('.camera-canvas');
+function outlineFaces(video, faces) {
+  console.log('camera.js outlineFaces: entered');
+  const {videoHeight, videoWidth} = video;
+
+  const canvas = document.querySelector('.video-canvas');
   const context = canvas.getContext('2d');
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  // There is a coordinate mismatch between
+  // the video element and the canvas element!
+  const xRatio = canvas.width / videoWidth;
+  const yRatio = canvas.height / videoHeight;
+
   context.strokeStyle = 'red';
   context.lineWidth = 3;
-  //console.log('faces found:', faces.length);
   for (const face of faces) {
-    const {left, top, width, height} = face.box;
-    context.strokeRect(left, top, width, height);
+    const {x, y, width, height} = face.box;
+    context.strokeRect(x * xRatio, y * yRatio, width * xRatio, height * yRatio);
   }
 }
 
@@ -184,8 +193,10 @@ function Camera() {
 
   async function loadModel() {
     if (VIDEO_DETECT) {
+      console.log('camera.js loadModel: loading mtcnn');
       await faceApi.loadMtcnnModel('/weights');
     } else {
+      console.log('camera.js loadModel: loading TinyFace');
       await faceApi.loadTinyFaceDetectorModel('/weights');
     }
 
@@ -246,6 +257,7 @@ function Camera() {
             >
               <track kind="captions" />
             </video>
+            <canvas className="video-canvas" />
             <svg
               className="shutter"
               height="64px"

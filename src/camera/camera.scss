@@ -33,6 +33,7 @@
   */
 
   .camera-canvas {
+    display: none;
     width: calc(100% - #{$padding} * 2);
     padding: 20px;
   }
@@ -44,10 +45,6 @@
 
   .camera-video {
     width: 100%;
-  }
-
-  canvas {
-    display: none;
   }
 
   .corner {
@@ -113,6 +110,13 @@
 
   video {
     width: calc(100% - #{$padding} * 2);
+  }
+
+  .video-canvas {
+    height: calc(100% - #{$padding} * 2);
+    position: absolute;
+    width: calc(100% - #{$padding} * 2);
+    z-index: 1;
   }
 
   .video-panel {
