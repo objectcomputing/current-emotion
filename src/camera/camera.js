@@ -69,8 +69,15 @@ async function sendPhoto(photoData) {
 
   try {
     const res = await fetch(url, {method: 'POST', headers, body});
-    const obj = await res.json();
-    return obj.responses[0].faceAnnotations[0];
+    const {status, statusText} = res;
+    if (status === 200) {
+      const obj = await res.json();
+      return obj.responses[0].faceAnnotations[0];
+    } else if (status === 401) {
+      alert('Unauthorized: need new auth token');
+    } else {
+      alert(`status ${status}: ${statusText}`);
+    }
   } catch (e) {
     alert(e.message);
     console.error(e);

@@ -9,7 +9,7 @@ This is a web app that uses:
 
 To generate a new auth token:
 
-- `gcloud auth activate-service-account --key-file secret.json`
+- `gcloud auth activate-service-account --key-file src/secret.json`
 - `gcloud auth print-access-token`
 - copy the token this outputs into `src/secret.json`
   which is not saved in the Git repo
