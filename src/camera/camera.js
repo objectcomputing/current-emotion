@@ -9,8 +9,6 @@ import {authToken} from '../secret.json';
 
 const emotions = ['anger', 'headwear', 'joy', 'sorrow', 'surprise'];
 
-const FACE_PARAMS = {minFaceSize: 30};
-
 const VIDEO_DETECT = true;
 
 const LIKELY_MAP = {
@@ -22,37 +20,39 @@ const LIKELY_MAP = {
   VERY_LIKELY: 'yes'
 };
 
-async function onPlay(video) {
-  console.log('camera.js onPlay: entered');
-  if (video.target) video = video.target;
+const FACE_PARAMS = {minFaceSize: 30};
+const faceApiOptions = new faceApi.MtcnnOptions(FACE_PARAMS);
 
-  if (VIDEO_DETECT) {
-    const options = new faceApi.MtcnnOptions(FACE_PARAMS);
-    const faces = await faceApi.detectAllFaces(video, options);
-    //.withFaceLandmarks()
-    //.withFaceDescriptors();
-    outlineFaces(video, faces);
-  }
+let canvas, context, token, video, xRatio, yRatio;
 
-  //TODO: Use setInterval from outside this function instead.
-  setTimeout(() => onPlay(video), 1000);
-}
+async function onPlay(theVideo) {
+  if (!VIDEO_DETECT) return;
 
-function outlineFaces(video, faces) {
-  console.log('camera.js outlineFaces: entered');
-  const {videoHeight, videoWidth} = video;
-
-  const canvas = document.querySelector('.video-canvas');
-  const context = canvas.getContext('2d');
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  canvas = document.querySelector('.video-canvas');
+  video = theVideo.target ? theVideo.target : theVideo;
 
   // There is a coordinate mismatch between
   // the video element and the canvas element!
-  const xRatio = canvas.width / videoWidth;
-  const yRatio = canvas.height / videoHeight;
+  xRatio = canvas.width / video.videoWidth;
+  yRatio = canvas.height / video.videoHeight;
 
+  context = canvas.getContext('2d');
   context.strokeStyle = 'red';
   context.lineWidth = 3;
+
+  token = setInterval(detectFaces, 50);
+}
+
+async function detectFaces() {
+  const faces = await faceApi.detectAllFaces(video, faceApiOptions);
+  //.withFaceLandmarks()
+  //.withFaceDescriptors();
+  outlineFaces(faces);
+}
+
+function outlineFaces(faces) {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
   for (const face of faces) {
     const {x, y, width, height} = face.box;
     context.strokeRect(x * xRatio, y * yRatio, width * xRatio, height * yRatio);
@@ -143,6 +143,11 @@ function startCamera() {
 export function stopCamera() {
   if (window.Cypress) return;
 
+  if (token) {
+    clearInterval(token);
+    token = null;
+  }
+
   const video = document.querySelector('.camera-video');
   if (video.srcObject) {
     const tracks = video.srcObject.getVideoTracks();
@@ -162,11 +167,13 @@ async function takePhoto() {
   image.src = photoData;
   context.drawImage(image, 0, 0);
 
+  /*
   const options = VIDEO_DETECT
     ? new faceApi.MtcnnOptions(FACE_PARAMS)
     : new faceApi.TinyFaceDetectorOptions();
   const faces = await faceApi.detectAllFaces(image, options);
   outlineFaces(faces);
+  */
 
   stopCamera();
 
@@ -193,10 +200,8 @@ function Camera() {
 
   async function loadModel() {
     if (VIDEO_DETECT) {
-      console.log('camera.js loadModel: loading mtcnn');
       await faceApi.loadMtcnnModel('/weights');
     } else {
-      console.log('camera.js loadModel: loading TinyFace');
       await faceApi.loadTinyFaceDetectorModel('/weights');
     }
 
