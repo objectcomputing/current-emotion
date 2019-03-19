@@ -5,8 +5,6 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {getDataUrlFromVideo} from '../image-util';
 import './camera.scss';
 
-import {authToken} from '../secret.json';
-
 const emotions = ['anger', 'headwear', 'joy', 'sorrow', 'surprise'];
 
 const VIDEO_DETECT = true;
@@ -25,7 +23,7 @@ const faceApiOptions = new faceApi.MtcnnOptions(FACE_PARAMS);
 
 let canvas, context, token, video, xRatio, yRatio;
 
-async function onPlay(theVideo) {
+async function onPlay(theVideo, setStatus) {
   if (!VIDEO_DETECT) return;
 
   canvas = document.querySelector('.video-canvas');
@@ -38,16 +36,31 @@ async function onPlay(theVideo) {
 
   context = canvas.getContext('2d');
   context.strokeStyle = 'red';
-  context.lineWidth = 3;
+  context.lineWidth = 1;
 
-  token = setInterval(detectFaces, 50);
+  setStatus('The video stream is being analyzed for faces.');
+  token = setInterval(() => detectFaces(setStatus), 50);
 }
 
-async function detectFaces() {
+async function detectFaces(setStatus) {
   const faces = await faceApi.detectAllFaces(video, faceApiOptions);
   //.withFaceLandmarks() // too much data!
   //.withFaceDescriptors(); // too much data!
+
+  const {length} = faces;
+  const prefix =
+    length === 0
+      ? 'No faces have'
+      : length === 1
+      ? '1 face has'
+      : length + ' faces have';
+  if (token) setStatus(prefix + ' been detected.');
   outlineFaces(faces);
+}
+
+function handleError(e) {
+  alert(e.message ? e.message : e);
+  console.error(e);
 }
 
 function outlineFaces(faces) {
@@ -60,24 +73,34 @@ function outlineFaces(faces) {
 }
 
 async function sendPhoto(photoData) {
-  const url = 'https://vision.googleapis.com/v1/images:annotate';
-  const headers = {
-    Authorization: 'Bearer ' + authToken,
-    'Content-Type': 'application/json'
-  };
-  const index = photoData.indexOf(',');
-  const content = photoData.substring(index + 1);
-  const body = JSON.stringify({
-    requests: [
-      {
-        features: [{maxResults: 1, type: 'FACE_DETECTION'}],
-        image: {content}
-      }
-    ]
-  });
-
   try {
-    const res = await fetch(url, {method: 'POST', headers, body});
+    // Get a fresh auth token.
+    let url = 'http://localhost:1919/token';
+    let res = await fetch(url);
+    if (res.status !== 200) {
+      handleError(`Failed to get auth token from ${url}.`);
+      return;
+    }
+    const authToken = await res.text();
+
+    // Detect faces in the photo.
+    url = 'https://vision.googleapis.com/v1/images:annotate';
+    const headers = {
+      Authorization: 'Bearer ' + authToken,
+      'Content-Type': 'application/json'
+    };
+    const index = photoData.indexOf(',');
+    const content = photoData.substring(index + 1);
+    const body = JSON.stringify({
+      requests: [
+        {
+          features: [{maxResults: 1, type: 'FACE_DETECTION'}],
+          image: {content}
+        }
+      ]
+    });
+
+    res = await fetch(url, {method: 'POST', headers, body});
     const {status, statusText} = res;
     if (status === 200) {
       const obj = await res.json();
@@ -88,8 +111,7 @@ async function sendPhoto(photoData) {
       alert(`status ${status}: ${statusText}`);
     }
   } catch (e) {
-    alert(e.message);
-    console.error(e);
+    handleError(e);
   }
 }
 
@@ -143,11 +165,6 @@ function startCamera() {
 export function stopCamera() {
   if (window.Cypress) return;
 
-  if (token) {
-    clearInterval(token);
-    token = null;
-  }
-
   const video = document.querySelector('.camera-video');
   if (video.srcObject) {
     const tracks = video.srcObject.getVideoTracks();
@@ -184,6 +201,7 @@ function Camera() {
   const [annotations, setAnnotations] = useState();
   const [photoData, setPhotoData] = useState('');
   const [showVideo, setShowVideo] = useState(false);
+  const [status, setStatus] = useState();
 
   const assess = mood => LIKELY_MAP[annotations[mood + 'Likelihood']];
 
@@ -193,6 +211,9 @@ function Camera() {
   }
 
   function cameraOn() {
+    // Clear any previous annotations.
+    setAnnotations(null);
+
     setPhotoData('');
     startCamera();
     setShowVideo(true);
@@ -216,18 +237,23 @@ function Camera() {
   const sendToGoogle = async photoData => {
     try {
       const annotations = await sendPhoto(photoData);
-      //TODO: Display annotations.landmarks on top of photo?
+      setStatus('Determined emotions in photo.');
       setAnnotations(annotations);
     } catch (e) {
-      alert(e.message);
-      console.error(e);
+      handleError(e);
     }
   };
 
   const snapPhoto = async () => {
+    if (token) {
+      clearInterval(token);
+      token = null;
+    }
+
     const photoData = await takePhoto();
     setPhotoData(photoData);
     setShowVideo(false);
+    setStatus('Analyzing emotions in photo.');
     sendToGoogle(photoData);
   };
 
@@ -262,7 +288,7 @@ function Camera() {
               autoPlay
               muted
               playsInline
-              onPlay={onPlay}
+              onPlay={video => onPlay(video, setStatus)}
             >
               <track kind="captions" />
             </video>
@@ -293,6 +319,8 @@ function Camera() {
           </div>
         )}
       </div>
+
+      <div className="status">{status}</div>
 
       {annotations && (
         <div className="annotations">
