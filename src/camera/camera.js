@@ -21,7 +21,7 @@ const LIKELY_MAP = {
 const FACE_PARAMS = {minFaceSize: 30};
 const faceApiOptions = new faceApi.MtcnnOptions(FACE_PARAMS);
 
-let canvas, context, token, video, xRatio, yRatio;
+let canvas, context, video, videoOn, xRatio, yRatio;
 
 async function onPlay(theVideo, setStatus) {
   if (!VIDEO_DETECT) return;
@@ -39,7 +39,8 @@ async function onPlay(theVideo, setStatus) {
   context.lineWidth = 1;
 
   setStatus('The video stream is being analyzed for faces.');
-  token = setInterval(() => detectFaces(setStatus), 50);
+  videoOn = true;
+  detectFaces(setStatus);
 }
 
 async function detectFaces(setStatus) {
@@ -54,8 +55,9 @@ async function detectFaces(setStatus) {
       : length === 1
       ? '1 face has'
       : length + ' faces have';
-  if (token) setStatus(prefix + ' been detected.');
+  if (videoOn) setStatus(prefix + ' been detected.');
   outlineFaces(faces);
+  if (videoOn) detectFaces(setStatus);
 }
 
 function handleError(e) {
@@ -245,10 +247,7 @@ function Camera() {
   };
 
   const snapPhoto = async () => {
-    if (token) {
-      clearInterval(token);
-      token = null;
-    }
+    videoOn = false;
 
     const photoData = await takePhoto();
     setPhotoData(photoData);

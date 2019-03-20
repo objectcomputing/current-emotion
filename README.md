@@ -16,6 +16,13 @@ To generate a new auth token:
 
 To run it:
 
+- open a terminal
+- `cd` to the project directory
+- `cd server`
+- `npm install`
+- `npm start`
+- open another terminal
+- `cd` to the project directory
 - `npm install`
 - `npm start`
 - browse localhost:3000
