@@ -1,7 +1,7 @@
 import * as faceApi from 'face-api.js';
 import {capitalize} from 'lodash/string';
 import {string} from 'prop-types';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {getDataUrlFromVideo} from '../image-util';
 import './camera.scss';
 
@@ -57,6 +57,7 @@ async function detectFaces(setStatus) {
       : length + ' faces have';
   if (videoOn) setStatus(prefix + ' been detected.');
   outlineFaces(faces);
+  //if (videoOn) setTimeout(() => detectFaces(setStatus), 200);
   if (videoOn) detectFaces(setStatus);
 }
 
@@ -260,11 +261,6 @@ function Camera() {
     loadModel();
   }, []);
 
-  const keyPressed = useCallback(event => {
-    const {key} = event;
-    if (key === ' ' || key === 'Enter') snapPhoto();
-  }, []);
-
   const foundEmotions = emotions.filter(has);
   const emojis = foundEmotions.map(emotion => (
     <img alt={emotion} key={emotion} src={`images/${emotion}.svg`} />
@@ -296,7 +292,6 @@ function Camera() {
               className="shutter"
               height="64px"
               onClick={snapPhoto}
-              onKeyPress={keyPressed}
               width="64px"
             >
               <g fill="none">
