@@ -1,4 +1,7 @@
 .camera {
+  $height: 350px;
+  $width: calc(#{$height} * 1.291); // video aspect ratio
+  //$width: 430px;
   $padding: 20px;
 
   display: inline-block;
@@ -8,7 +11,6 @@
   .annotations {
     color: white;
     font-size: 24px;
-    margin-top: 20px;
   }
 
   .bl {
@@ -35,8 +37,8 @@
 
   .camera-canvas {
     display: none;
-    width: calc(100% - #{$padding} * 2);
     padding: 20px;
+    width: calc(100% - 2 * #{$padding});
   }
 
   .camera-img {
@@ -45,6 +47,7 @@
   }
 
   .camera-video {
+    height: 100%;
     width: 100%;
   }
 
@@ -84,7 +87,7 @@
 
   .shutter {
     position: absolute;
-    bottom: -15px;
+    bottom: 5px;
     z-index: 2;
   }
 
@@ -112,7 +115,10 @@
   }
 
   .top {
+    margin: 0 auto;
     position: relative; // makes this the containing block of its children
+    height: $height;
+    width: $width;
   }
 
   .tr {
@@ -126,9 +132,11 @@
   }
 
   .video-canvas {
-    height: calc(100% - #{$padding} * 2);
+    //height: calc(100% - #{$padding} * 2);
+    height: 100%;
     position: absolute;
-    width: calc(100% - #{$padding} * 2);
+    //width: calc(100% - #{$padding} * 2);
+    width: 100%;
     z-index: 1;
   }
 
@@ -136,7 +144,6 @@
     align-items: center;
     display: flex;
     flex-direction: column;
-    padding: $padding;
-    width: calc(100% - #{$padding} * 2);
+    padding: calc(#{$padding} / 4) $padding;
   }
 }

@@ -1,0 +1,31 @@
+.bar {
+  //$color: #255aa8;
+  $height: 24px;
+
+  background-color: white;
+  //border: solid $color 3px;
+  height: $height;
+  margin-bottom: 20px;
+  padding: 5px;
+  position: relative;
+  width: 100%;
+
+  .label {
+    $padding: 2px;
+    //color: #4ab4ff;
+    color: black;
+    font-size: $height - 2 * $padding;
+    font-weight: bold;
+    height: $height;
+    margin-top: $padding;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 100%;
+  }
+
+  .value {
+    background-color: orange;
+    height: 100%;
+  }
+}

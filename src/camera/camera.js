@@ -2,13 +2,16 @@ import * as faceApi from 'face-api.js';
 import {capitalize} from 'lodash/string';
 import {string} from 'prop-types';
 import React, {useEffect, useState} from 'react';
+import Bar from '../bar/bar';
 import {getDataUrlFromVideo} from '../image-util';
 import './camera.scss';
 
-const emotions = ['anger', 'headwear', 'joy', 'sorrow', 'surprise'];
+//const emotions = ['anger', 'headwear', 'joy', 'sorrow', 'surprise'];
+const emotions = ['headwear', 'joy', 'surprise'];
 
 const VIDEO_DETECT = true;
 
+/*
 const LIKELY_MAP = {
   UNKNOWN: 'not sure',
   VERY_UNLIKELY: 'no',
@@ -16,6 +19,16 @@ const LIKELY_MAP = {
   POSSIBLE: 'maybe',
   LIKELY: 'probably',
   VERY_LIKELY: 'yes'
+};
+*/
+
+const PERCENT_MAP = {
+  UNKNOWN: 0,
+  VERY_UNLIKELY: 0,
+  UNLIKELY: 25,
+  POSSIBLE: 50,
+  LIKELY: 75,
+  VERY_LIKELY: 100
 };
 
 const FACE_PARAMS = {minFaceSize: 30};
@@ -206,7 +219,9 @@ function Camera() {
   const [showVideo, setShowVideo] = useState(false);
   const [status, setStatus] = useState();
 
-  const assess = mood => LIKELY_MAP[annotations[mood + 'Likelihood']];
+  //const assess = mood => LIKELY_MAP[annotations[mood + 'Likelihood']];
+
+  const getPercent = mood => PERCENT_MAP[annotations[mood + 'Likelihood']];
 
   function has(mood) {
     const chance = annotations && annotations[mood + 'Likelihood'];
@@ -240,6 +255,7 @@ function Camera() {
   const sendToGoogle = async photoData => {
     try {
       const annotations = await sendPhoto(photoData);
+      console.log('camera.js sendToGoogle: annotations =', annotations);
       setStatus('Determined emotions in photo.');
       setAnnotations(annotations);
     } catch (e) {
@@ -320,7 +336,8 @@ function Camera() {
         <div className="annotations">
           <div className="emojis">{emojis}</div>
           {emotions.map(e => (
-            <div key={e}>{`${capitalize(e)}: ${assess(e)}`}</div>
+            //<div key={e}>{`${capitalize(e)}: ${assess(e)}`}</div>
+            <Bar key={e} label={capitalize(e)} percent={getPercent(e)} />
           ))}
         </div>
       )}
