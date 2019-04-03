@@ -24,8 +24,8 @@ const LIKELY_MAP = {
 */
 
 const levelMap = {
-  UNKNOWN: 'low',
-  VERY_UNLIKELY: 'low',
+  UNKNOWN: '',
+  VERY_UNLIKELY: '',
   UNLIKELY: 'low',
   POSSIBLE: 'mid',
   LIKELY: 'high',
@@ -247,6 +247,8 @@ function Camera() {
   const getQuote = mood => {
     const likelihood = annotations[mood + 'Likelihood'];
     const level = levelMap[likelihood];
+    if (!level) return null;
+
     let qs = quotes[mood];
     qs = qs ? qs[level] : [];
     var quote = qs[Math.floor(Math.random() * qs.length)];
@@ -286,11 +288,11 @@ function Camera() {
 
   const snapPhoto = async () => {
     videoOn = false;
+    setStatus('Analyzing emotions in photo.');
+    setShowVideo(false);
 
     const photoData = await takePhoto();
     setPhotoData(photoData);
-    setShowVideo(false);
-    setStatus('Analyzing emotions in photo.');
     sendToGoogle(photoData);
   };
 
