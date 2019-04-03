@@ -1,0 +1,30 @@
+{
+  "joy": {
+    "low": [
+      "Not currently using ML to inform key business decisions but SO WANT TO BE.",
+      "Oh so innovative ... but am not yet using Machine Learning in my business."
+    ],
+    "mid": ["So not afraid to sparkle.", "Let's do this SMART digital thing!"],
+    "high": [
+      "Machine Learning is in my future - woo hoo!",
+      "Dreamin big & bold & in color today"
+    ]
+  },
+  "surprise": {
+    "low": [
+      "I'm losing out on new value creation - who knew!?",
+      "Machine Learning is so incredibly simple & valuable."
+    ],
+    "mid": [
+      "To be surprised, to wonder ... is to begin to understand.",
+      "Crocs are fun! - whaaaa?!"
+    ],
+    "high": [
+      "Let life surprise you - ML showed me things I could never have imagined.",
+      "OMG - SMART digital is beyond magical!"
+    ]
+  },
+  "moodless": [
+    "I just realized I'm losing out on the opportunity to create new value. I need to be woke."
+  ]
+}

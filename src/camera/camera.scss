@@ -67,6 +67,11 @@
     height: 100px;
   }
 
+  .quote {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
   #redo {
     width: 36px;
     position: absolute;
@@ -87,7 +92,7 @@
 
   .shutter {
     position: absolute;
-    bottom: 5px;
+    bottom: -12px;
     z-index: 2;
   }
 

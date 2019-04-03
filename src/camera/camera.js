@@ -4,6 +4,7 @@ import {string} from 'prop-types';
 import React, {useEffect, useState} from 'react';
 import Bar from '../bar/bar';
 import {getDataUrlFromVideo} from '../image-util';
+import quotes from '../quotes.json';
 import './camera.scss';
 
 //const emotions = ['anger', 'headwear', 'joy', 'sorrow', 'surprise'];
@@ -22,7 +23,16 @@ const LIKELY_MAP = {
 };
 */
 
-const PERCENT_MAP = {
+const levelMap = {
+  UNKNOWN: 'low',
+  VERY_UNLIKELY: 'low',
+  UNLIKELY: 'low',
+  POSSIBLE: 'mid',
+  LIKELY: 'high',
+  VERY_LIKELY: 'high'
+};
+
+const percentMap = {
   UNKNOWN: 0,
   VERY_UNLIKELY: 0,
   UNLIKELY: 25,
@@ -171,8 +181,10 @@ function startCamera() {
     const errorCb = err => {
       // The most common errors are PermissionDenied and DevicesNotFound.
       console.error(err);
+      console.error(err.message);
     };
-    const constraints = {facingMode: 'environment'};
+    //const constraints = {facingMode: 'environment'};
+    const constraints = {};
     receiver.getUserMedia({video: constraints}, successCb, errorCb);
   }
 }
@@ -221,13 +233,6 @@ function Camera() {
 
   //const assess = mood => LIKELY_MAP[annotations[mood + 'Likelihood']];
 
-  const getPercent = mood => PERCENT_MAP[annotations[mood + 'Likelihood']];
-
-  function has(mood) {
-    const chance = annotations && annotations[mood + 'Likelihood'];
-    return chance === 'VERY_LIKELY' || chance === 'LIKELY';
-  }
-
   function cameraOn() {
     // Clear any previous annotations.
     setAnnotations(null);
@@ -235,6 +240,22 @@ function Camera() {
     setPhotoData('');
     startCamera();
     setShowVideo(true);
+  }
+
+  const getPercent = mood => percentMap[annotations[mood + 'Likelihood']];
+
+  const getQuote = mood => {
+    const likelihood = annotations[mood + 'Likelihood'];
+    const level = levelMap[likelihood];
+    let qs = quotes[mood];
+    qs = qs ? qs[level] : [];
+    var quote = qs[Math.floor(Math.random() * qs.length)];
+    return quote;
+  };
+
+  function has(mood) {
+    const chance = annotations && annotations[mood + 'Likelihood'];
+    return chance === 'VERY_LIKELY' || chance === 'LIKELY';
   }
 
   async function loadModel() {
@@ -336,8 +357,11 @@ function Camera() {
         <div className="annotations">
           <div className="emojis">{emojis}</div>
           {emotions.map(e => (
-            //<div key={e}>{`${capitalize(e)}: ${assess(e)}`}</div>
-            <Bar key={e} label={capitalize(e)} percent={getPercent(e)} />
+            <div className="emotion" key={e}>
+              {/* <div key={e}>{`${capitalize(e)}: ${assess(e)}`}</div> */}
+              <Bar key={e} label={capitalize(e)} percent={getPercent(e)} />
+              <div className="quote">{getQuote(e)}</div>
+            </div>
           ))}
         </div>
       )}
