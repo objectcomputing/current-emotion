@@ -141,18 +141,11 @@ async function sendPhoto(photoData) {
   }
 }
 
-function startCamera() {
-  let receiver = navigator;
-  if (
-    !navigator.getUserMedia &&
-    navigator.mediaDevices &&
-    navigator.mediaDevices.getUserMedia
-  ) {
-    receiver = navigator.mediaDevices;
-  }
+async function startCamera() {
+  const receiver = navigator.mediaDevices;
 
   // This is not defined in tests run in jsdom.
-  if (receiver.getUserMedia) {
+  if (receiver && receiver.getUserMedia) {
     const successCb = async stream => {
       if (window.Cypress) return;
       // Turn on camera and begin recording.
@@ -178,14 +171,17 @@ function startCamera() {
         );
       }
     };
-    const errorCb = err => {
-      // The most common errors are PermissionDenied and DevicesNotFound.
-      console.error(err);
-      console.error(err.message);
-    };
+
     //const constraints = {facingMode: 'environment'};
     const constraints = {};
-    receiver.getUserMedia({video: constraints}, successCb, errorCb);
+    try {
+      const stream = await receiver.getUserMedia({video: constraints});
+      successCb(stream);
+    } catch (e) {
+      // The most common errors are PermissionDenied and DevicesNotFound.
+      console.error(e);
+      console.error(e.message);
+    }
   }
 }
 
